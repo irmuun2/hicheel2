@@ -1,0 +1,1126 @@
+<!DOCTYPE html>
+<html lang="mn">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Нарны аймаг тоглоом 2</title>
+<style>
+:root{
+  --bg:#070b1d; --bg2:#0f1633; --panel:#141d40; --line:#2a3670;
+  --ink:#eef2ff; --mute:#9aa6d6; --acc:#ffcc33; --ok:#3ddc84; --bad:#ff5c6c;
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{
+  background:radial-gradient(ellipse at 20% 0%,#1b2560 0,transparent 55%),radial-gradient(ellipse at 90% 100%,#2a1450 0,transparent 50%),var(--bg);
+  color:var(--ink); font-family:"Segoe UI",Roboto,Arial,sans-serif; font-size:18px; min-height:100vh;
+}
+body::before{ /* одод */
+  content:""; position:fixed; inset:0; pointer-events:none; z-index:-1; opacity:.55;
+  background-image:
+    radial-gradient(1px 1px at 10% 20%,#fff,transparent),radial-gradient(1px 1px at 30% 70%,#fff,transparent),
+    radial-gradient(1.5px 1.5px at 55% 35%,#fff,transparent),radial-gradient(1px 1px at 75% 15%,#fff,transparent),
+    radial-gradient(1px 1px at 85% 60%,#fff,transparent),radial-gradient(1.5px 1.5px at 45% 85%,#fff,transparent),
+    radial-gradient(1px 1px at 65% 90%,#fff,transparent),radial-gradient(1px 1px at 5% 80%,#fff,transparent);
+  background-size:420px 420px;
+}
+button{font:inherit;color:inherit;cursor:pointer;border:1px solid var(--line);background:var(--panel);border-radius:10px;padding:8px 14px}
+button:hover{border-color:#5266c9}
+button.main{background:var(--acc);color:#1a1300;border-color:var(--acc);font-weight:700}
+button.ghost{background:transparent}
+h1,h2,h3{margin:0 0 .5em}
+h2{font-size:1.7em}
+.mute{color:var(--mute)}
+
+/* Толгой */
+header{position:sticky;top:0;z-index:20;display:flex;flex-wrap:wrap;gap:10px;align-items:center;padding:10px 16px;background:rgba(7,11,29,.92);backdrop-filter:blur(6px);border-bottom:1px solid var(--line)}
+.brand{font-weight:800;font-size:1.05em;margin-right:6px}
+.brand small{display:block;font-weight:400;color:var(--mute);font-size:.75em}
+nav{display:flex;gap:6px;flex-wrap:wrap;flex:1}
+nav button{padding:6px 10px;font-size:.88em}
+nav button.on{background:var(--acc);color:#1a1300;border-color:var(--acc);font-weight:700}
+nav button i{font-style:normal;opacity:.7;font-size:.85em;margin-left:4px}
+.timer{display:flex;align-items:center;gap:6px}
+#tm{font-variant-numeric:tabular-nums;font-size:1.6em;font-weight:800;min-width:3.3em;text-align:center}
+#tm.low{color:var(--bad);animation:blink 1s steps(2) infinite}
+@keyframes blink{50%{opacity:.3}}
+
+/* Багууд */
+#teams{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;padding:10px 16px}
+.team{position:relative;display:flex;align-items:center;gap:8px;padding:8px 10px;border-radius:12px;background:var(--panel);border:2px solid transparent;cursor:pointer}
+.team::before{content:"";width:12px;height:12px;border-radius:50%;background:var(--tc);flex:none}
+.team.act{border-color:var(--tc);box-shadow:0 0 18px -4px var(--tc)}
+.team.act::after{content:"ЭЭЛЖ";position:absolute;top:-9px;right:10px;font-size:.6em;font-weight:800;background:var(--tc);color:#111;padding:1px 6px;border-radius:6px}
+.tn{flex:1;font-weight:700;outline:none;min-width:0;overflow:hidden;white-space:nowrap}
+.ts{font-size:1.5em;font-variant-numeric:tabular-nums;min-width:1.6em;text-align:right}
+.team button{padding:2px 9px;font-size:.9em}
+.pop{position:fixed;font-weight:900;font-size:2em;color:var(--acc);pointer-events:none;z-index:99;animation:pop 1.2s ease-out forwards;text-shadow:0 2px 8px #000}
+@keyframes pop{to{transform:translateY(-70px);opacity:0}}
+
+/* Үе шат */
+main{padding:6px 16px 40px;max-width:1300px;margin:0 auto}
+.stage{display:none;animation:fade .35s}
+.stage.on{display:block}
+@keyframes fade{from{opacity:0;transform:translateY(8px)}}
+.card{background:rgba(20,29,64,.85);border:1px solid var(--line);border-radius:16px;padding:18px 20px}
+.row{display:flex;gap:16px;flex-wrap:wrap}
+.grow{flex:1;min-width:280px}
+.tag{display:inline-block;background:#24306a;color:#c8d2ff;border-radius:20px;padding:3px 12px;margin:3px;font-size:.85em}
+.steps{display:inline-block;background:var(--acc);color:#1a1300;font-weight:800;border-radius:8px;padding:2px 10px;font-size:.8em;margin-bottom:8px}
+.msg{min-height:1.6em;font-weight:700;margin-top:10px}
+.msg.ok{color:var(--ok)} .msg.bad{color:var(--bad)}
+.btns{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+
+/* Гараг */
+.pl{position:relative;display:inline-block;border-radius:50%;flex:none;box-shadow:inset -6px -6px 14px rgba(0,0,0,.55)}
+.pl.saturn::after{content:"";position:absolute;left:-38%;top:37%;width:176%;height:26%;border-radius:50%;border:3px solid rgba(235,214,150,.9);transform:rotate(-16deg)}
+.pl.sun{box-shadow:0 0 30px 6px rgba(255,190,40,.6)}
+
+/* Эхлэл: тойрог зам */
+.orbits{position:relative;width:min(440px,90vw);aspect-ratio:1;margin:0 auto}
+.orbits .o{position:absolute;left:50%;top:50%;border:1px dashed rgba(160,175,255,.28);border-radius:50%;transform:translate(-50%,-50%);animation:spin linear infinite}
+.orbits .o .pl{position:absolute;top:0;left:50%;transform:translate(-50%,-50%)}
+.orbits .center{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%)}
+@keyframes spin{to{transform:translate(-50%,-50%) rotate(360deg)}}
+.vote{display:flex;align-items:center;gap:10px;margin:8px 0}
+.vote button{flex:1;text-align:left}
+.vote b{font-size:1.4em;min-width:1.5em;text-align:center}
+
+/* Тоглоом 1 */
+.lane{display:flex;align-items:center;gap:8px;overflow-x:auto;padding:14px 4px}
+.slot{flex:1;min-width:92px;height:120px;border:2px dashed #3d4c94;border-radius:14px;display:flex;flex-direction:column;align-items:center;justify-content:center;position:relative;background:rgba(255,255,255,.02)}
+.slot .num{position:absolute;top:4px;left:8px;font-size:.75em;color:var(--mute)}
+.slot.ok{border-style:solid;border-color:var(--ok);background:rgba(61,220,132,.1)}
+.slot.no{border-style:solid;border-color:var(--bad);background:rgba(255,92,108,.1)}
+.slot.hover{border-color:var(--acc)}
+.pool{display:flex;flex-wrap:wrap;gap:10px;min-height:130px;padding:12px;border-radius:14px;background:rgba(0,0,0,.18);border:1px solid var(--line);align-items:center;justify-content:center}
+.tok{display:flex;flex-direction:column;align-items:center;gap:6px;padding:8px 6px;border-radius:12px;cursor:grab;user-select:none;min-width:84px}
+.tok span{font-size:.85em;font-weight:600}
+.tok.sel{background:rgba(255,204,51,.18);outline:2px solid var(--acc)}
+.mnem{display:none;margin-top:12px;font-size:1.15em}
+.mnem.on{display:block}
+.mnem b{color:var(--acc);font-size:1.25em}
+
+/* Тоглоом 2 */
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{display:flex;align-items:center;gap:8px;padding:6px 12px;border-radius:30px}
+.chip.cur{background:var(--acc);color:#1a1300;border-color:var(--acc);font-weight:700}
+.chip.done{opacity:.45}
+.trackWrap{position:relative;margin:26px 0 8px;padding:0 6px}
+.track{position:relative;height:210px;border-radius:14px;background:linear-gradient(90deg,rgba(255,204,51,.18),rgba(255,255,255,.02) 30%);border:1px solid var(--line);cursor:crosshair;overflow:hidden}
+.axis{position:absolute;left:0;right:0;top:140px;height:2px;background:#5867b6}
+.tick{position:absolute;top:132px;width:1px;height:18px;background:#5867b6}
+.tick span{position:absolute;top:20px;left:-20px;width:40px;text-align:center;font-size:.72em;color:var(--mute)}
+.mk{position:absolute;top:0;bottom:0;width:0;pointer-events:none}
+.mk .ln{position:absolute;top:30px;height:110px;left:-1px;border-left:2px solid #fff}
+.mk.guess .ln{border-left:2px dashed var(--gc)}
+.mk.guess .lb{background:var(--gc);color:#111}
+.mk .pl{position:absolute;top:128px;transform:translateX(-50%)}
+.mk .lb{position:absolute;transform:translateX(-50%);white-space:nowrap;font-size:.72em;font-weight:700;background:rgba(0,0,0,.6);padding:1px 6px;border-radius:6px}
+.sunEdge{position:absolute;left:-40px;top:100px;width:80px;height:80px;border-radius:50%;background:radial-gradient(circle,#fff6b0,#ffcc33 50%,#ff8c00);box-shadow:0 0 30px 8px rgba(255,190,40,.5)}
+table{border-collapse:collapse;width:100%;font-size:.92em}
+td,th{border-bottom:1px solid var(--line);padding:6px 8px;text-align:left}
+th{color:var(--mute);font-weight:600}
+.concl{display:none;margin-top:14px;border-left:4px solid var(--acc);padding:10px 14px;background:rgba(255,204,51,.08);border-radius:0 12px 12px 0}
+.concl.on{display:block}
+
+/* Тоглоом 3 */
+.riddle{display:flex;gap:18px;flex-wrap:wrap}
+.clues{flex:1.3;min-width:300px}
+.clue{font-size:1.3em;padding:12px 16px;margin:8px 0;border-radius:12px;background:#1b2656;border-left:5px solid var(--acc);animation:fade .4s}
+.clue small{display:block;font-size:.6em;color:var(--mute);font-weight:700;letter-spacing:.05em}
+.clue.hid{background:repeating-linear-gradient(45deg,#151d44 0 10px,#19224d 10px 20px);border-left-color:#3d4c94;color:transparent;user-select:none}
+.ans{flex:1;min-width:280px;display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:8px;align-content:start}
+.ans button{display:flex;align-items:center;gap:8px;padding:8px}
+.ans button.no{background:rgba(255,92,108,.2);border-color:var(--bad);opacity:.6}
+.ans button.yes{background:rgba(61,220,132,.25);border-color:var(--ok)}
+.reveal{display:none;align-items:center;gap:16px;margin-top:12px;padding:12px;border-radius:12px;background:rgba(61,220,132,.1);border:1px solid var(--ok)}
+.reveal.on{display:flex}
+.worth{font-size:.9em;color:var(--acc);font-weight:700}
+
+/* Тоглоом 4 */
+.q{font-size:1.6em;font-weight:700;margin:6px 0 16px}
+.opts{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.opt{display:flex;gap:12px;align-items:center;font-size:1.25em;padding:16px;border-radius:14px;text-align:left}
+.opt b{display:inline-grid;place-items:center;width:42px;height:42px;border-radius:10px;background:#24306a;flex:none}
+.opt.right{background:rgba(61,220,132,.25);border-color:var(--ok)}
+.opt.right b{background:var(--ok);color:#06210f}
+.opt.dim{opacity:.4}
+.give{display:none;gap:8px;flex-wrap:wrap;margin-top:14px;align-items:center}
+.give.on{display:flex}
+.give button.got{background:var(--tc);color:#111;border-color:var(--tc);font-weight:700}
+.expl{margin-top:10px;color:#c8d2ff;display:none}
+.expl.on{display:block}
+
+/* Хичээл заах слайд */
+.sl{display:none;min-height:380px;padding-top:10px}
+.sl.on{display:block;animation:fade .35s}
+.sl h2{font-size:2em}
+.sl .big{font-size:1.35em;line-height:1.5}
+.facts{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;margin:10px 0}
+.facts div{background:var(--panel2,#1b2656);border-radius:14px;padding:14px 16px;border-left:5px solid var(--acc)}
+.facts b{display:block;font-size:1.6em;color:var(--acc)}
+.facts span{color:#c8d2ff}
+.comp{display:grid;grid-template-columns:repeat(6,1fr);gap:10px;margin-top:14px}
+.comp div{background:#1b2656;border-radius:14px;padding:14px 8px;text-align:center;font-size:2em}
+.comp b{display:block;font-size:.5em;margin-top:6px}
+.comp span{display:block;font-size:.4em;color:var(--mute)}
+.porder{display:grid;grid-template-columns:repeat(8,1fr);gap:8px;align-items:end}
+.porder div{display:flex;flex-direction:column;align-items:center;gap:6px;text-align:center;background:#1b2656;border-radius:12px;padding:12px 4px}
+.porder i{font-style:normal;font-weight:900;color:var(--acc)}
+.porder b{font-size:.9em}
+.porder small{color:var(--mute);font-size:.75em}
+.dist{display:flex;flex-direction:column;gap:6px;margin-top:8px}
+.dist .r{display:grid;grid-template-columns:150px 1fr 70px;gap:10px;align-items:center;font-size:.95em}
+.dist .bar{height:16px;border-radius:8px;background:linear-gradient(90deg,var(--acc),#ff8c00)}
+.dist .r.belt .bar{background:repeating-linear-gradient(90deg,#7b6a58 0 6px,transparent 6px 10px)}
+.dist b{text-align:right}
+.gl{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px;margin-top:10px}
+.gl div{background:#1b2656;border-radius:14px;padding:14px 16px}
+.gl b{display:block;font-size:1.1em;margin-bottom:4px}
+.gl span{color:#c8d2ff;font-size:.9em}
+.slnav{justify-content:space-between;margin-top:16px}
+.dots{display:flex;gap:8px}
+.dots span{width:12px;height:12px;border-radius:50%;background:#3d4c94;cursor:pointer}
+.dots span.on{background:var(--acc);transform:scale(1.25)}
+@media (max-width:800px){.comp{grid-template-columns:repeat(3,1fr)}.porder{grid-template-columns:repeat(4,1fr)}.dist .r{grid-template-columns:100px 1fr 55px}}
+
+/* Бүтээх хэсэг */
+.make{margin-top:18px;padding:14px 16px;border-radius:14px;background:rgba(177,151,252,.08);border:1px dashed #b197fc}
+.make h3{color:#d0bfff;margin:0 0 4px}
+.make input{width:100%;font:inherit;color:inherit;background:#0d1430;border:1px solid var(--line);border-radius:10px;padding:8px 12px}
+.letters{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
+.lt{width:42px;height:42px;border-radius:10px;display:grid;place-items:center;font-weight:900;font-size:1.2em;background:#0d1430;border:2px solid var(--line)}
+.lt.ok{background:rgba(61,220,132,.2);border-color:var(--ok)}
+.lt.no{background:rgba(255,92,108,.2);border-color:var(--bad)}
+#mkGuess button{border-left:5px solid var(--tc)}
+
+/* Санах ойн хос */
+.mem{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:10px;perspective:900px}
+.mc{position:relative;height:118px;cursor:pointer;transform-style:preserve-3d;transition:transform .45s}
+.mc.up,.mc.done{transform:rotateY(180deg)}
+.mc>div{position:absolute;inset:0;border-radius:14px;backface-visibility:hidden;display:flex;align-items:center;justify-content:center;text-align:center;padding:8px;font-weight:700}
+.mc .back{background:radial-gradient(circle at 30% 30%,#2b3a86,#141d40);border:2px solid #3d4c94;font-size:2.2em}
+.mc .face{transform:rotateY(180deg);font-size:1.05em}
+.mc .face.a{background:#ffe08a;color:#2a1f00;font-size:1.5em}
+.mc .face.b{background:#a9d4ff;color:#0a2140}
+.mc.done .face{box-shadow:0 0 0 4px var(--ok)}
+.mc .src{position:absolute;bottom:5px;right:8px;font-size:.6em;opacity:.65;font-weight:600}
+
+/* Үнэн үү, худал уу? */
+.tf{font-size:1.9em;font-weight:800;text-align:center;padding:30px 20px;margin:10px 0;border-radius:18px;background:#1b2656;border:2px solid var(--line);line-height:1.35}
+.tf.t{border-color:var(--ok);background:rgba(61,220,132,.12)}
+.tf.f{border-color:var(--bad);background:rgba(255,92,108,.12)}
+.tfAns{display:none;text-align:center;font-size:1.2em}
+.tfAns.on{display:block;animation:fade .4s}
+.tfAns .big{font-size:1.8em;font-weight:900}
+.tfAns .src{color:var(--mute);font-size:.8em}
+
+/* Дараагийн тоглоом */
+.nextbar{display:flex;justify-content:space-between;gap:10px;margin-top:16px}
+.nextbar button{font-size:1.05em;padding:12px 20px}
+.nextbar .main{margin-left:auto}
+.splash{position:fixed;inset:0;z-index:50;display:none;align-items:center;justify-content:center;background:rgba(5,8,22,.88);backdrop-filter:blur(4px);cursor:pointer}
+.splash.on{display:flex;animation:fade .3s}
+.splash .box{text-align:center;max-width:720px;padding:20px}
+.splash .num{color:var(--acc);font-weight:800;letter-spacing:.1em}
+.splash h1{font-size:3.2em;margin:.2em 0}
+.splash p{font-size:1.3em;color:#c8d2ff}
+
+/* Дүгнэлт */
+.podium{display:flex;align-items:flex-end;justify-content:center;gap:12px;height:250px;margin:10px 0 18px}
+.pod{width:150px;border-radius:12px 12px 0 0;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;padding-top:10px;background:var(--tc);color:#111;font-weight:800;text-align:center}
+.pod .medal{font-size:2em}
+.blank{display:inline-block;min-width:150px;border-bottom:2px dashed var(--acc);color:transparent;cursor:pointer;text-align:center}
+.blank.on{color:var(--acc);border-bottom-style:solid}
+ul.tk li{margin:8px 0}
+
+/* Багшид */
+dialog{max-width:900px;width:94vw;background:#0f1633;color:var(--ink);border:1px solid var(--line);border-radius:16px;padding:0}
+dialog::backdrop{background:rgba(0,0,0,.6)}
+dialog .in{padding:20px 24px;max-height:85vh;overflow:auto}
+dialog h3{color:var(--acc);margin-top:18px}
+.note{background:rgba(255,92,108,.08);border-left:4px solid var(--bad);padding:8px 12px;border-radius:0 10px 10px 0;margin:6px 0}
+
+@media (max-width:800px){
+  body{font-size:16px}
+  #teams{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .team{min-width:0}
+  header{position:static}
+  .mem{grid-template-columns:repeat(3,1fr)}
+  .tf{font-size:1.4em;padding:20px 12px}
+  .nextbar{flex-wrap:wrap}
+}
+@media (max-width:520px){
+  #teams{grid-template-columns:1fr}
+  .mem{grid-template-columns:repeat(2,1fr)}
+  .opts{grid-template-columns:1fr}
+  .q{font-size:1.3em}
+}
+@media print{
+  header,#teams,main{display:none}
+  dialog{display:block;position:static;border:none;color:#000;background:#fff;max-width:none;width:auto}
+  dialog .in{max-height:none}
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="brand">🪐 Нарны аймаг · Тоглоомт хичээл<small>7-р анги · Газар зүй · 2.1 Нарны аймаг · 40 мин</small></div>
+  <nav id="nav"></nav>
+  <div class="timer">
+    <span id="tm">05:00</span>
+    <button id="tPlay" title="Эхлүүлэх/зогсоох">▶</button>
+    <button id="tReset" title="Дахин эхлүүлэх">↺</button>
+  </div>
+  <button id="guideBtn">📋 Багшид</button>
+</header>
+
+<section id="teams"></section>
+
+<main>
+
+<!-- 0. ХИЧЭЭЛ ЗААХ -->
+<section class="stage" data-i="0">
+  <div class="card">
+    <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px">
+      <span class="steps" style="margin:0">Хичээл заах · 10 мин</span>
+      <span class="mute" id="slNum"></span>
+    </div>
+
+    <!-- Слайд 1 -->
+    <div class="sl" data-s="0">
+      <div class="row" style="align-items:center">
+        <div class="grow" style="flex:1.2">
+          <h2>☀️ Өнөөдөр: Нарны аймаг</h2>
+          <p class="mute" style="margin-bottom:4px">Ярилцъя:</p>
+          <ul style="margin-top:0">
+            <li>Нарны аймагт Нараас гадна юу юу байдаг вэ?</li>
+            <li>Та аль гараг руу аялмаар байна, яагаад?</li>
+          </ul>
+          <div class="card" style="background:#1b2656">
+            <h3>🔮 Таамаглал: Гарагууд Нарнаас <u>жигд</u> зайтай байрладаг уу?</h3>
+            <p class="mute" style="margin-top:0">Баг бүр нэгийг сонгоно. Хариуг «Масштабт аялал» тоглоомоор шалгана.</p>
+            <div id="votes"></div>
+          </div>
+        </div>
+        <div class="grow" style="text-align:center"><div class="orbits" id="orbits"></div></div>
+      </div>
+    </div>
+
+    <!-- Слайд 2 -->
+    <div class="sl" data-s="1">
+      <div class="row" style="align-items:center">
+        <div style="flex:none;padding:10px 30px"><span class="pl sun" style="width:170px;height:170px;background:radial-gradient(circle at 40% 40%,#fff6b0,#ffcc33 45%,#ff8c00)"></span></div>
+        <div class="grow">
+          <h2>☀️ Нар</h2>
+          <div class="facts">
+            <div><b>Шар од</b><span>Нар бол Дэлхийд хамгийн ойр орших од</span></div>
+            <div><b>Устөрөгч, гели</b><span>Нарны найрлагад зонхилох хий</span></div>
+            <div><b>6000°C</b><span>Нарны гадаргын температур</span></div>
+          </div>
+          <p class="mute">💡 Нар бол гараг биш — <b>од</b>! Бүх гараг Нарыг тойрон эргэдэг.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Слайд 3 -->
+    <div class="sl" data-s="2">
+      <h2>🌌 Нарны аймаг гэж юу вэ?</h2>
+      <p class="big">Нар ба түүнийг тойрон эргэх <b>гарагууд</b>, тэдгээрийн <b>дагуулууд</b>, <b>жижиг гарагууд</b>, <b>сүүлт одод</b>, <b>солирууд</b>, <b>тоосонцор</b>, гараг хоорондын зайг нийтэд нь <b>Нарны аймаг</b> гэнэ.</p>
+      <div class="comp">
+        <div>☀️<b>Нар</b><span>төв, од</span></div>
+        <div>🪐<b>Гараг</b><span>Нарыг тойрно</span></div>
+        <div>🌙<b>Дагуул</b><span>гарагийг тойрно</span></div>
+        <div>🪨<b>Жижиг гараг</b><span>бага гарагууд</span></div>
+        <div>☄️<b>Сүүлт од</b><span>сүүлтэй биет</span></div>
+        <div>🌠<b>Солир</b><span>сансрын чулуу</span></div>
+      </div>
+    </div>
+
+    <!-- Слайд 4 -->
+    <div class="sl" data-s="3">
+      <h2>🪐 Гарагуудын дараалал ба өнгө</h2>
+      <p class="mute" style="margin-top:-6px">Нарнаас ойроос нь эхлэн:</p>
+      <div class="porder" id="porder"></div>
+      <div class="mnem on" style="margin-top:14px">💡 Цээжлэх арга: <b>Б</b>ор <b>С</b>үм <b>Д</b>ээр <b>А</b>ав <b>Б</b>ид <b>С</b>айхан <b>Т</b>энгэрт <b>Д</b>уулав</div>
+      <p class="mute">Сурах бичигт 9 гараг гэж бичсэн — 9 дэх нь <b>Дэлхий ван</b>. 2006 оноос эрдэмтэд түүнийг <b>одой гараг</b> гэж ангилсан тул одоо 8 гараг гэж үздэг.</p>
+    </div>
+
+    <!-- Слайд 5 -->
+    <div class="sl" data-s="4">
+      <h2>📏 Гарагууд Нарнаас хэр хол вэ?</h2>
+      <p style="margin-top:-6px">Загварт <b>Дэлхий = 10 см</b> (бодитоор 150 сая км) гэж үзвэл:</p>
+      <div class="dist" id="dist"></div>
+      <div class="concl on" style="margin-top:10px">
+        <b>Анзаараарай:</b> эхний 4 гараг Нарт <b>ойр бөөгнөрсөн</b>, цааш зай <b>огцом ихэсдэг</b>. Ангараг ба Бархасбадийн хооронд <b>бага гарагуудын бүс</b> бий.
+      </div>
+    </div>
+
+    <!-- Слайд 6 -->
+    <div class="sl" data-s="5">
+      <div class="row" style="align-items:center">
+        <div style="flex:none;padding:10px 30px"><span class="pl" style="width:150px;height:150px;background:radial-gradient(circle at 60% 40%,#9a9a9a 0 10%,transparent 11%),radial-gradient(circle at 30% 65%,#a5a5a5 0 8%,transparent 9%),radial-gradient(circle at 35% 35%,#f4f4f4,#bdbdbd 55%,#777)"></span></div>
+        <div class="grow">
+          <h2>🌙 Сар ба дагуулууд</h2>
+          <div class="facts">
+            <div><b>Ганц</b><span>Сар бол Дэлхийн ганц дагуул</span></div>
+            <div><b>384 400 км</b><span>Дэлхийгээс Сар хүртэлх зай</span></div>
+            <div><b>Нэг тал</b><span>Сар тойрох хурд ба тэнхлэгээ эргэх хугацаа бараг ижил тул бид Сарны зөвхөн нэг талыг хардаг</span></div>
+            <div><b>79</b><span>СБ-т Бархасбадь хамгийн олон буюу 79 дагуултай гэжээ. 🆕 Одоо Санчир 270 гаруй дагуулаар тэргүүлж байна</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Слайд 7 -->
+    <div class="sl" data-s="6">
+      <h2>🎮 Одоо тоглоомоор бататгая!</h2>
+      <p style="margin-top:-6px">Сая сурсан зүйлээ дараах 5 тоглоомд ашиглана:</p>
+      <div class="gl">
+        <div><b>1. 🪐 Гарагийн эгнээ</b><span>Гарагуудыг дараалуулж, өөрийн цээжлэх арга зохионо</span></div>
+        <div><b>2. 📏 Масштабт аялал</b><span>Дэлхий = 10 см бол бусад гараг хаана вэ?</span></div>
+        <div><b>3. 🃏 Санах ойн хос</b><span>6000°C, 384 400 км, 79 … тоог утгатай нь тааруул</span></div>
+        <div><b>4. 🕵️ Би хэн бэ?</b><span>Сэжүүрээр таа, дараа нь өөрсдөө оньсого зохио</span></div>
+        <div><b>5. ⚖️ Үнэн үү, худал уу?</b><span>Худлыг олоод засаж хэл</span></div>
+      </div>
+    </div>
+
+    <div class="btns slnav">
+      <button class="ghost" id="slPrev">⬅ Өмнөх слайд</button>
+      <div class="dots" id="slDots"></div>
+      <button class="main" id="slNext">Дараагийн слайд ➜</button>
+    </div>
+  </div>
+</section>
+
+<!-- 1. ГАРАГИЙН ЭГНЭЭ -->
+<section class="stage" data-i="1">
+  <div class="card">
+    <span class="steps">Тоглоом 1 · 5 мин</span>
+    <h2>🪐 Гарагийн эгнээ</h2>
+    <p>Гарагийг <b>дарж сонгоод</b> нүдэн дээр дарна уу (эсвэл чирж тавина). Нарнаас ойроос нь эхлэн дарааллаар нь байрлуул! <span class="mute">Оноо: зөв гараг бүр +1, бүгд зөв бол +2 нэмэлт.</span></p>
+    <div class="lane" id="lane"></div>
+    <div class="pool" id="pool"></div>
+    <div class="btns">
+      <button class="main" id="g1Check">✔ Шалгах</button>
+      <button id="g1Next">↻ Дараагийн баг</button>
+      <button id="g1Mn">💡 Цээжлэх арга</button>
+      <span class="mute" id="g1Clock" style="align-self:center"></span>
+    </div>
+    <div class="msg" id="g1Msg"></div>
+    <div class="mnem" id="g1Mnem">
+      <b>Б</b>ор <b>С</b>үм <b>Д</b>ээр <b>А</b>ав <b>Б</b>ид <b>С</b>айхан <b>Т</b>энгэрт <b>Д</b>уулав
+      <div class="mute">Буд · Сугар · Дэлхий · Ангараг · Бархасбадь · Санчир · Тэнгэрийн ван · Далай ван</div>
+      <div class="mute" style="margin-top:6px">Сурах бичигт 9 гараг гэж бичсэн: 9 дэх нь <b style="font-size:1em">Дэлхий ван (Плутон)</b>. 2006 оноос эрдэмтэд түүнийг <b style="font-size:1em">одой гараг</b> гэж ангилсан.</div>
+    </div>
+    <div class="make">
+      <h3>✍️ Өөрийн цээжлэх арга зохио!</h3>
+      <p class="mute" style="margin:0 0 8px">Үг бүрийн эхний үсэг нь гарагийн нэрийн эхний үсэгтэй таарах өгүүлбэр зохио. Ээлжийн баг бичнэ — зөв бол <b>+2</b>.</p>
+      <input id="mkIn" placeholder="Жишээ нь: Бат Сайхан Дуу …">
+      <div class="letters" id="mkLt"></div>
+      <div class="btns"><button class="main" id="mkOk">✔ Шалгах</button><span class="msg" id="mkMsg" style="margin:0"></span></div>
+    </div>
+  </div>
+</section>
+
+<!-- 2. МАСШТАБТ АЯЛАЛ -->
+<section class="stage" data-i="2">
+  <div class="card">
+    <span class="steps">Тоглоом 2 · 6 мин</span>
+    <h2>📏 Масштабт аялал</h2>
+    <p><b>Дэлхий Нарнаас 10 см</b> зайд байна гэж үзье (бодитоор 150 сая км). Бусад гараг хаана байх вэ? Ээлжийн баг гараг сонгоод шугам дээр <b>дарж</b> таамгаа тэмдэглэнэ. <span class="mute">Ойрхон таавал 3, дунд зэрэг 2, холдуу 1 оноо.</span></p>
+    <div class="chips" id="g2Chips"></div>
+    <div class="trackWrap"><div class="track" id="track"></div></div>
+    <div class="btns">
+      <button class="main" id="g2Rev">🎯 Хариуг харуулах</button>
+      <button id="g2Zoom">🔍 0–20 см-ийг томруулах</button>
+      <button id="g2All">🌌 Бүгдийг харуулах</button>
+      <button class="ghost" id="g2Reset">↺ Шинээр</button>
+    </div>
+    <div class="msg" id="g2Msg"></div>
+    <div class="concl" id="g2Concl">
+      <h3>🔎 Юу ажиглав?</h3>
+      <div class="row">
+        <div class="grow">
+          <ul class="tk">
+            <li>Буд, Сугар, Дэлхий, Ангараг — <b>Нарт ойр бөөгнөрсөн</b> (15 см дотор).</li>
+            <li>Ангараг ба Бархасбадийн хооронд <b>бага гарагуудын бүс</b> (28 см) оршино.</li>
+            <li>Цаашаа гарагуудын хоорондын зай <b>огцом ихэсдэг</b>: Далай ван 300 см буюу 3 метр!</li>
+            <li>Тэгэхээр таамаглалын зөв хариу: гарагууд <b>жигд биш</b> — Нарнаас холдох тусам зай ихэснэ.</li>
+          </ul>
+          <p class="mute">🧵 Дасгал 1(а): Утас, шавраар энэ зайг ангид бодитоор хэмжиж бүтээж болно — анги 4 метр байхад л хүрнэ!</p>
+        </div>
+        <div class="grow"><table id="g2Table"></table></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 3. САНАХ ОЙН ХОС -->
+<section class="stage" data-i="3">
+  <div class="card">
+    <span class="steps">Тоглоом 3 · 5 мин</span>
+    <h2>🃏 Санах ойн хос</h2>
+    <p class="mute" style="margin-top:-4px">Ээлжийн баг 2 карт эргүүлнэ. <b>Тоо/үг</b> (шар) ба түүний <b>утга</b> (цэнхэр) таарвал +1 оноо аваад дахин тоглоно. Таарахгүй бол ээлж шилжинэ. Бүх хариу СБ 16-р талд бий!</p>
+    <div class="mem" id="mem"></div>
+    <div class="btns">
+      <button class="ghost" id="memNew">↻ Шинээр холих</button>
+      <span class="mute" id="memInfo" style="align-self:center"></span>
+    </div>
+    <div class="msg" id="memMsg"></div>
+  </div>
+</section>
+
+<!-- 4. БИ ХЭН БЭ? -->
+<section class="stage" data-i="4">
+  <div class="card">
+    <span class="steps">Тоглоом 4 · 6 мин</span>
+    <h2>🕵️ Би хэн бэ?</h2>
+    <p class="mute" style="margin-top:-4px">Сэжүүрийг уншина. Ээлжийн баг хариулна: <b>1 сэжүүрээр таавал 3 оноо</b>, 2-оор 2, 3-аар 1. Буруу бол ээлж дараагийн багт шилжинэ.</p>
+    <div class="riddle">
+      <div class="clues">
+        <div style="display:flex;justify-content:space-between;align-items:center">
+          <b id="g3Count"></b><span class="worth" id="g3Worth"></span>
+        </div>
+        <div id="g3Clues"></div>
+        <div class="btns">
+          <button class="main" id="g3More">➕ Сэжүүр нэмэх</button>
+          <button id="g3Show">👁 Хариуг харуулах</button>
+          <button id="g3Next">Дараагийн карт ➜</button>
+        </div>
+        <div class="msg" id="g3Msg"></div>
+        <div class="reveal" id="g3Rev"></div>
+      </div>
+      <div class="ans" id="g3Ans"></div>
+    </div>
+    <div class="make">
+      <h3>✍️ Одоо та нар оньсого зохио!</h3>
+      <p class="mute" style="margin:0 0 8px">Ээлжийн баг Нарны аймгийн нэг биетийг сонгоод СБ-ээс <b>3 сэжүүр</b> цаасан дээр бичнэ (хэцүүгээс амархан руу). Дараа нь сэжүүрээ нэг нэгээр нь чангаар уншина, бусад баг таана.</p>
+      <div class="btns" style="margin-top:0">
+        <span>Зохиогч: <b id="mkAuthor"></b></span>
+        <button id="mkClue">📢 Дараагийн сэжүүр уншлаа</button>
+        <span class="worth" id="mkWorth"></span>
+      </div>
+      <div class="btns" id="mkGuess"></div>
+      <div class="msg" id="mkRMsg"></div>
+      <p class="mute" style="font-size:.85em;margin:4px 0 0">Таасан баг 3/2/1 оноо авна. Зохиогч баг 2 эсвэл 3 дахь сэжүүр дээр таагдвал <b>+2</b> (сайн оньсого), 1 дэх дээр таагдвал +1.</p>
+    </div>
+  </div>
+</section>
+
+<!-- 5. ҮНЭН ҮҮ, ХУДАЛ УУ? -->
+<section class="stage" data-i="5">
+  <div class="card">
+    <span class="steps">Тоглоом 5 · 5 мин</span>
+    <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px">
+      <h2 style="margin:0">⚖️ Үнэн үү, худал уу?</h2>
+      <b id="g4Count" class="mute"></b>
+    </div>
+    <p class="mute">Сурах бичгийн 16-р талаас шалгаад баг бүр <b>✅ эсвэл ❌</b> картаа <b>зэрэг</b> өргөнө. Зөв бол +1. Худлыг <b>засаж</b> хэлсэн баг нэмэлт +1 авна!</p>
+    <div class="tf" id="g4Q"></div>
+    <div class="tfAns" id="g4Ans"></div>
+    <div class="give" id="g4Give"><span class="mute">Зөв хариулсан баг (+1):</span></div>
+    <div class="btns">
+      <button class="ghost" id="g4Prev">⬅ Өмнөх</button>
+      <button class="main" id="g4Rev">✔ Хариуг харуулах</button>
+      <button id="g4Next">Дараагийн өгүүлбэр ➜</button>
+    </div>
+  </div>
+</section>
+
+<!-- 5. ДҮГНЭЛТ -->
+<section class="stage" data-i="6">
+  <div class="row">
+    <div class="card grow">
+      <span class="steps">Дүгнэлт гаргах · 3 мин</span>
+      <h2>🏆 Тоглоомын үр дүн</h2>
+      <div class="podium" id="podium"></div>
+      <h3>🔮 Таамаглал ба бодит байдал</h3>
+      <div id="predRes"></div>
+    </div>
+    <div class="card grow">
+      <h3>🧠 Дүгнэлтээ гүйцээе <span class="mute" style="font-size:.7em">(зураас дээр дарж нээнэ)</span></h3>
+      <ul class="tk">
+        <li>Нар бол <span class="blank">шар од</span>, гадаргын температур нь <span class="blank">6000°C</span>.</li>
+        <li>Нарыг тойрон эргэх гарагууд, дагуул, бага гараг, сүүлт од, солир, тоосонцрыг нийтэд нь <span class="blank">Нарны аймаг</span> гэнэ.</li>
+        <li>Дэлхий Нарнаас <span class="blank">3 дахь</span> гараг бөгөөд <span class="blank">амьдрал</span> бүхий цорын ганц гараг.</li>
+        <li>Сар бол Дэлхийн ганц дагуул, <span class="blank">384 400 км</span> зайтай.</li>
+        <li>Нарнаас холдох тусам гарагуудын хоорондын зай <span class="blank">ихэсдэг</span>.</li>
+      </ul>
+      <h3>🎟 Гарах тасалбар «3-2-1»</h3>
+      <p style="margin-top:0">Өнөөдөр сурсан <b>3</b> зүйл · гайхсан <b>2</b> зүйл · асуух <b>1</b> асуулт</p>
+      <h3>🏠 Гэрийн даалгавар</h3>
+      <p style="margin-top:0">Дасгал 1(б): <b>«Сүүлт од гэж юу вэ?»</b> — 4–5 өгүүлбэрээр бичих.<br><span class="mute">Сонголтоор: Нарны аймгийн зураг зурж, гарагуудын нэрийг бичих.</span></p>
+      <p class="mute">Дараагийн хичээл: <b>2.2 Дэлхий гараг</b> — өдөр шөнө, улирал, цагийн бүс.</p>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<dialog id="guide"><div class="in">
+  <div style="display:flex;justify-content:space-between;align-items:center;gap:10px">
+    <h2 style="margin:0">📋 Багшийн хөтөч</h2>
+    <div><button onclick="window.print()">🖨 Хэвлэх</button> <button id="guideClose">✕</button></div>
+  </div>
+  <p><b>Сэдэв:</b> II бүлэг. 2.1 Нарны аймаг (СБ 15–16-р тал) · <b>Арга:</b> Тоглоомд суурилсан суралцахуй · <b>Хугацаа:</b> 40 мин · <b>Хэлбэр:</b> 4 баг</p>
+  <p><b>Зорилго:</b> Сурагчид Нарны аймгийн бүрэлдэхүүнийг тоглоомоор судалж, гарагуудыг Нарнаас алслагдсан дарааллаар нь байрлуулж, зайн харьцааг масштабаар дүгнэн, Дэлхий гарагийн онцлогийг тайлбарлана.</p>
+  <h3>Суралцахуйн зорилт — хичээлийн төгсгөлд сурагч:</h3>
+  <ol>
+    <li>Нарны аймгийн бүрэлдэхүүнийг (Нар, гараг, дагуул, бага гараг, сүүлт од, солир) нэрлэнэ.</li>
+    <li>Гарагуудыг Нарнаас алслагдсан дарааллаар зөв байрлуулна.</li>
+    <li>2.1 дүгээр хүснэгтийн масштабыг ашиглан гарагуудын зай жигд бус болохыг дүгнэнэ.</li>
+    <li>Дэлхий гарагийн бусдаас ялгарах онцлогийг тайлбарлана.</li>
+  </ol>
+  <h3>Бэлтгэл</h3>
+  <ul>
+    <li>Проектор/ухаалаг самбар, энэ файл (интернэтгүй ажиллана).</li>
+    <li>Баг бүрт ✅ ба ❌ карт (Тоглоом 5-д). Сурагч бүр сурах бичгээ авчирсан байх (📖 тэмдэгтэй тоглоомуудад).</li>
+    <li>Ангийг 4 баг болгоно. Дээд талын багийн нэр дээр дарж <b>засаж</b> болно; карт дээр дарвал тэр баг <b>ээлжтэй</b> болно.</li>
+    <li>Сонголтоор: утас, баримлын шавар (Дасгал 1а).</li>
+  </ul>
+  <h3>Хичээлийн явц</h3>
+  <table>
+    <tr><th>Хугацаа</th><th>Шат</th><th>Сурагч</th><th>Багш</th></tr>
+    <tr><td>0–10</td><td>Хичээл заах (7 слайд)</td><td>Сонсож, ярилцаж, таамаглал сонгоно. СБ 15–16-р талыг дагаж харна.</td><td>Нар, Нарны аймгийн бүрэлдэхүүн, гарагуудын дараалал ба өнгө, зай, Сар ба дагуулыг слайдаар заана — эдгээр нь дараагийн тоглоомуудад гарна. Слайдыг ← → товчоор солино.</td></tr>
+    <tr><td>10–15</td><td>Тоглоом 1 · Гарагийн эгнээ</td><td>Баг бүрээс 1 төлөөлөгч ээлжээр 8 гарагийг дараалуулна (~1.5 мин).</td><td>«Шалгах» → оноо автоматаар орно. «Дараагийн баг» холиод ээлж шилжүүлнэ. Төгсгөлд цээжлэх аргыг үзүүлнэ.</td></tr>
+    <tr><td>15–21</td><td>Тоглоом 2 · Масштабт аялал</td><td>Ээлжээр гараг сонгож, масштабын шугам дээр байрлалыг таана.</td><td>Дэлхий = 10 см (2.1 хүснэгт) гэдгийг тайлбарлана. Дотоод гарагуудыг «томруулах» горимоор хийнэ.</td></tr>
+    <tr><td>21–26</td><td>Тоглоом 3 · Санах ойн хос 📖</td><td>2 карт эргүүлж тоо ба утгыг тааруулна. Номоос шалгаж болно.</td><td>Хос олбол тэр баг дахин тоглоно. Хос бүрийг олох үед чангаар уншуулна.</td></tr>
+    <tr><td>26–32</td><td>Тоглоом 4 · Би хэн бэ? 📖</td><td>СБ 16-р тал, 2.1 хүснэгтийн мэдээллээр зохиосон сэжүүрээр таана.</td><td>Нэг картанд ~30 сек. Дэлхийн карт дээр Дасгал 1(в)-г ярилцуулна.</td></tr>
+    <tr><td>32–37</td><td>Тоглоом 5 · Үнэн үү, худал уу? 📖</td><td>✅/❌ картаа зэрэг өргөнө. Худлыг засаж хэлнэ.</td><td>Зөв багуудад +1, худлыг зөв зассан багт нэмэлт +1 (багийн «+» товч).</td></tr>
+    <tr><td>37–40</td><td>Дүгнэлт</td><td>Дүгнэлтийн өгүүлбэрүүдийг гүйцээж, «3-2-1» тасалбар бичнэ.</td><td>Ялагчийг тодруулж, таамаглалыг бодит үр дүнтэй харьцуулна. Гэрийн даалгавар өгнө.</td></tr>
+  </table>
+  <h3>Үнэлгээний шалгуур (10 оноо)</h3>
+  <ul>
+    <li>Гарагуудын дарааллыг зөв нэрлэсэн — 3</li>
+    <li>Масштабаар зай жигд бус гэдгийг дүгнэсэн — 3</li>
+    <li>Дэлхийн онцлогийг тайлбарласан — 2</li>
+    <li>Тестэд 7-оос дээш зөв — 2</li>
+  </ul>
+  <h3>⚠ Сурах бичгийн мэдээллийг шинэчлэх нь</h3>
+  <div class="note">Сурах бичигт <b>9 гараг</b> гэж бичсэн. Олон улсын одон орон судлалын холбоо 2006 онд Дэлхий ван (Плутон)-г <b>одой гараг</b> гэж ангилсан тул одоо 8 гараг гэж үздэг.</div>
+  <div class="note">Сурах бичигт Бархасбадь <b>79 дагуултай</b>, хамгийн олон гэж бичсэн. Шинэ нээлтүүдээр Бархасбадь 90 гаруй, <b>Санчир 200 гаруй</b> дагуултай болж, одоогийн байдлаар Санчир хамгийн олон дагуултай. Тоо нь нээлтээр нэмэгдсээр байгааг сурагчдад хэлээрэй.</div>
+  <div class="note">2.1 дүгээр хүснэгтийн зайг энд Дэлхий = 10 см масштабаар ашигласан: Буд 4, Сугар 7, Дэлхий 10, Ангараг 15, бага гарагуудын бүс 28, Бархасбадь 52, Санчир 96, Тэнгэрийн ван 192, Далай ван 300, Дэлхий ван 395 см.</div>
+  <h3>Тохиргоо</h3>
+  <p><button id="resetAll">⟲ Бүх оноо, саналыг тэглэх (шинэ анги)</button> <span class="mute">Оноо энэ хөтөч дээр хадгалагдана.</span></p>
+</div></dialog>
+
+<script>
+(function(){
+"use strict";
+const $=s=>document.querySelector(s);
+const el=(tag,cls,html)=>{const e=document.createElement(tag);if(cls)e.className=cls;if(html!=null)e.innerHTML=html;return e};
+const store={
+  get(k,d){try{const v=localStorage.getItem("na7_"+k);return v?JSON.parse(v):d}catch(e){return d}},
+  set(k,v){try{localStorage.setItem("na7_"+k,JSON.stringify(v))}catch(e){}}
+};
+const shuffle=a=>{a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.random()*(i+1)|0;[a[i],a[j]]=[a[j],a[i]]}return a};
+
+/* ---------- Биетүүд ---------- */
+const P={
+  sun:{n:"Нар",s:60,bg:"radial-gradient(circle at 40% 40%,#fff6b0,#ffcc33 45%,#ff8c00)"},
+  mercury:{n:"Буд",s:22,d:4,bg:"radial-gradient(circle at 35% 35%,#e0e0e0,#8a8a8a 55%,#4f4f4f)"},
+  venus:{n:"Сугар",s:30,d:7,bg:"radial-gradient(circle at 35% 35%,#fff2cc,#e2b866 55%,#9c6f29)"},
+  earth:{n:"Дэлхий",s:32,d:10,bg:"radial-gradient(circle at 62% 38%,#3aa655 0 16%,transparent 17%),radial-gradient(circle at 32% 66%,#3aa655 0 13%,transparent 14%),radial-gradient(circle at 35% 35%,#9fd3ff,#2f7de1 50%,#173f86)"},
+  mars:{n:"Ангараг",s:26,d:15,bg:"radial-gradient(circle at 35% 35%,#ffb08a,#c1440e 55%,#6e2207)"},
+  jupiter:{n:"Бархасбадь",s:58,d:52,bg:"radial-gradient(ellipse at 65% 62%,#b5452c 0 9%,transparent 10%),radial-gradient(circle at 35% 35%,rgba(255,255,255,.3),transparent 55%),repeating-linear-gradient(180deg,#e7c497 0 7px,#b98252 7px 11px,#f2dcbb 11px 16px)"},
+  saturn:{n:"Санчир",s:46,d:96,bg:"radial-gradient(circle at 35% 35%,rgba(255,255,255,.3),transparent 55%),repeating-linear-gradient(180deg,#ecd59a 0 8px,#d2b26c 8px 13px)"},
+  uranus:{n:"Тэнгэрийн ван",s:38,d:192,bg:"radial-gradient(circle at 35% 35%,#e0fbff,#7fd3d8 50%,#3b8b93)"},
+  neptune:{n:"Далай ван",s:38,d:300,bg:"radial-gradient(circle at 35% 35%,#b7c6ff,#3f5bd8 50%,#1d2a7a)"},
+  pluto:{n:"Дэлхий ван (Плутон)",short:"Плутон",s:16,d:395,bg:"radial-gradient(circle at 35% 35%,#efe0cf,#b9a28e 55%,#6d5a49)"},
+  moon:{n:"Сар",s:24,bg:"radial-gradient(circle at 60% 40%,#9a9a9a 0 10%,transparent 11%),radial-gradient(circle at 35% 35%,#f4f4f4,#bdbdbd 55%,#777)"},
+  comet:{n:"Сүүлт од",s:20,bg:"radial-gradient(circle,#ffffff,#9be7ff 50%,#2f7de1)",emoji:"☄️"},
+  meteor:{n:"Солир",s:18,bg:"radial-gradient(circle,#fff3c4,#ff9a3c 50%,#a33a00)",emoji:"🌠"},
+  asteroid:{n:"Бага гарагийн бүс",s:18,bg:"radial-gradient(circle at 35% 35%,#c9b8a3,#7b6a58 60%,#3f352b)"}
+};
+const ORDER=["mercury","venus","earth","mars","jupiter","saturn","uranus","neptune"];
+function planet(k,size){
+  const p=P[k],e=el("span","pl "+k),s=size||p.s;
+  e.style.width=e.style.height=s+"px";e.style.background=p.bg;
+  if(k==="saturn")e.style.margin="0 "+(s*.35)+"px";
+  return e;
+}
+
+/* ---------- Багууд ---------- */
+const DEF_TEAMS=[{n:"Пуужин",c:"#ff6b6b",s:0},{n:"Сүүлт од",c:"#4dabf7",s:0},{n:"Солир",c:"#ffd43b",s:0},{n:"Хиймэл дагуул",c:"#69db7c",s:0}];
+let teams=store.get("teams",DEF_TEAMS.map(t=>({...t})));
+let active=store.get("active",0);
+const saveTeams=()=>{store.set("teams",teams);store.set("active",active)};
+function renderTeams(){
+  const box=$("#teams");box.innerHTML="";
+  teams.forEach((t,i)=>{
+    const c=el("div","team"+(i===active?" act":""));c.style.setProperty("--tc",t.c);
+    const n=el("span","tn");n.textContent=t.n;n.contentEditable="true";n.spellcheck=false;
+    n.addEventListener("blur",()=>{t.n=n.textContent.trim()||("Баг "+(i+1));saveTeams();refreshTeamNames()});
+    n.addEventListener("keydown",ev=>{if(ev.key==="Enter"){ev.preventDefault();n.blur()}});
+    const s=el("b","ts",t.s);s.id="ts"+i;
+    const m=el("button",null,"−"),pl=el("button",null,"+");
+    m.onclick=ev=>{ev.stopPropagation();award(-1,i)};pl.onclick=ev=>{ev.stopPropagation();award(1,i)};
+    c.append(n,s,m,pl);
+    c.addEventListener("click",ev=>{if(ev.target===n)return;setActive(i)});
+    box.append(c);
+  });
+}
+function setActive(i){active=i;saveTeams();document.querySelectorAll(".team").forEach((c,j)=>c.classList.toggle("act",j===i))}
+function nextTeam(){setActive((active+1)%teams.length)}
+function award(p,i){
+  if(i==null)i=active;
+  teams[i].s=Math.max(0,teams[i].s+p);saveTeams();
+  $("#ts"+i).textContent=teams[i].s;
+  if(p>0){
+    const r=$("#ts"+i).getBoundingClientRect(),f=el("div","pop","+"+p);
+    f.style.left=(r.left-10)+"px";f.style.top=(r.top)+"px";f.style.color=teams[i].c;
+    document.body.append(f);setTimeout(()=>f.remove(),1300);
+  }
+}
+function refreshTeamNames(){renderG4Give();if(typeof renderMkR==="function")renderMkR()}
+
+/* ---------- Үе шат ба цаг ---------- */
+const STAGES=[
+  ["Хичээл заах",10,"📖",""],
+  ["Гарагийн эгнээ",5,"🪐","8 гарагийг Нарнаас ойроос нь эхлэн дараалуул!"],
+  ["Масштабт аялал",6,"📏","Дэлхий = 10 см бол бусад гараг хаана байх вэ?"],
+  ["Санах ойн хос",5,"🃏","Тоо ба утгыг нь хосоор нь ол. Хариу СБ 16-р талд!"],
+  ["Би хэн бэ?",6,"🕵️","Сэжүүрээр таа — цөөн сэжүүр, их оноо!"],
+  ["Үнэн үү, худал уу?",5,"⚖️","Номоосоо шалгаад ✅ эсвэл ❌ картаа өргө!"],
+  ["Дүгнэлт",3,"🏆","Хэн ялав? Өнөөдөр юу сурав?"]
+];
+let stage=0,left=300,running=false,iv=null;
+STAGES.forEach(([t,m],i)=>{
+  const b=el("button",null,(i+1)+". "+t+"<i>"+m+"′</i>");b.onclick=()=>go(i);$("#nav").append(b);
+});
+function go(i,splash){
+  stage=i;
+  document.querySelectorAll(".stage").forEach(s=>s.classList.toggle("on",+s.dataset.i===i));
+  document.querySelectorAll("#nav button").forEach((b,j)=>b.classList.toggle("on",j===i));
+  stopTimer();left=STAGES[i][1]*60;drawTime();
+  if(i===6)renderEnd();
+  window.scrollTo({top:0,behavior:"smooth"});
+  if(splash&&i>0)showSplash(i);
+}
+/* Тоглоом бүрийн доор «Өмнөх / Дараагийн» товч */
+document.querySelectorAll(".stage").forEach(s=>{
+  const i=+s.dataset.i,bar=el("div","nextbar");
+  if(i>0){const p=el("button","ghost","⬅ "+STAGES[i-1][0]);p.onclick=()=>go(i-1);bar.append(p)}
+  if(i<STAGES.length-1){
+    const n=el("button","main",(i+1<STAGES.length-1?"Дараагийн тоглоом: ":"")+STAGES[i+1][0]+" ➜");
+    n.onclick=()=>go(i+1,true);bar.append(n);
+  }
+  s.append(bar);
+});
+const splash=el("div","splash");document.body.append(splash);
+let splashT=null;
+function showSplash(i){
+  const [t,m,ic,rule]=STAGES[i],isGame=i<STAGES.length-1;
+  splash.innerHTML="<div class='box'><div class='num'>"+(isGame?"ТОГЛООМ "+i+" / "+(STAGES.length-2):"ТӨГСГӨЛ")+" · "+m+" МИН</div><h1>"+ic+" "+t+"</h1><p>"+rule+"</p><p class='mute' style='font-size:.9em'>Дарж эхлэх</p></div>";
+  splash.classList.add("on");clearTimeout(splashT);splashT=setTimeout(()=>splash.classList.remove("on"),3500);
+}
+splash.onclick=()=>splash.classList.remove("on");
+/* Гарын ← → товчоор шилжих */
+document.addEventListener("keydown",ev=>{
+  if(ev.key!=="ArrowRight"&&ev.key!=="ArrowLeft")return;
+  const t=ev.target;
+  if(t.isContentEditable||/^(INPUT|TEXTAREA|SELECT)$/.test(t.tagName)||$("#guide").open)return;
+  ev.preventDefault();
+  splash.classList.remove("on");
+  if(stage===0){
+    if(ev.key==="ArrowRight"&&slide<SL_N-1){showSlide(slide+1);return}
+    if(ev.key==="ArrowLeft"&&slide>0){showSlide(slide-1);return}
+  }
+  if(ev.key==="ArrowRight"&&stage<STAGES.length-1)go(stage+1,true);
+  if(ev.key==="ArrowLeft"&&stage>0)go(stage-1);
+});
+function drawTime(){
+  const m=Math.floor(left/60),s=left%60;
+  $("#tm").textContent=String(m).padStart(2,"0")+":"+String(s).padStart(2,"0");
+  $("#tm").classList.toggle("low",left<=30&&left>0&&running||left===0);
+  $("#tPlay").textContent=running?"⏸":"▶";
+}
+function stopTimer(){running=false;clearInterval(iv);drawTime()}
+function beep(){try{const a=new (window.AudioContext||window.webkitAudioContext)(),o=a.createOscillator(),g=a.createGain();o.frequency.value=660;o.connect(g);g.connect(a.destination);g.gain.setValueAtTime(.2,a.currentTime);g.gain.exponentialRampToValueAtTime(.001,a.currentTime+1);o.start();o.stop(a.currentTime+1)}catch(e){}}
+$("#tPlay").onclick=()=>{
+  if(running){stopTimer();return}
+  if(left===0)left=STAGES[stage][1]*60;
+  running=true;drawTime();
+  iv=setInterval(()=>{left=Math.max(0,left-1);if(left===0){stopTimer();beep()}drawTime()},1000);
+};
+$("#tReset").onclick=()=>{stopTimer();left=STAGES[stage][1]*60;drawTime()};
+
+/* ---------- 0. Хичээл заах (слайд) ---------- */
+const SL_N=document.querySelectorAll(".sl").length;let slide=0;
+function showSlide(n){
+  slide=Math.max(0,Math.min(SL_N-1,n));
+  document.querySelectorAll(".sl").forEach(x=>x.classList.toggle("on",+x.dataset.s===slide));
+  $("#slNum").textContent="Слайд "+(slide+1)+" / "+SL_N;
+  const d=$("#slDots");d.innerHTML="";
+  for(let i=0;i<SL_N;i++){const t=el("span",i===slide?"on":"");t.onclick=()=>showSlide(i);d.append(t)}
+  $("#slPrev").disabled=slide===0;
+  $("#slNext").textContent=slide===SL_N-1?"Тоглоом эхлүүлэх ➜":"Дараагийн слайд ➜";
+}
+$("#slPrev").onclick=()=>showSlide(slide-1);
+$("#slNext").onclick=()=>{if(slide<SL_N-1)showSlide(slide+1);else go(1,true)};
+(function(){
+  const COL={mercury:"саарал",venus:"цагаан шаргал",earth:"цэнхэр",mars:"улаан",jupiter:"шаргал",saturn:"алтлаг шар",uranus:"хар хөх",neptune:"—"};
+  const po=$("#porder");
+  ORDER.forEach((k,i)=>{const d=el("div");d.append(el("i",null,i+1),planet(k,Math.min(Math.max(P[k].s,22),46)),el("b",null,P[k].n),el("small",null,COL[k]));po.append(d)});
+  const rows=[["Буд",4],["Сугар",7],["Дэлхий",10],["Ангараг",15],["Бага гарагуудын бүс",28,1],["Бархасбадь",52],["Санчир",96],["Тэнгэрийн ван",192],["Далай ван",300]];
+  const ds=$("#dist");
+  rows.forEach(([n,d,belt])=>{const r=el("div","r"+(belt?" belt":""));r.append(el("span",null,n));const w=el("div");const b=el("div","bar");b.style.width=Math.max(d/300*100,1)+"%";w.append(b);r.append(w,el("b",null,d+" см"));ds.append(r)});
+})();
+showSlide(0);
+
+/* ---------- Тойрог замын хөдөлгөөн ---------- */
+(function(){
+  const box=$("#orbits");const c=el("div","center");c.append(planet("sun",54));box.append(c);
+  const per=[3,5,7,10,16,24,34,44];
+  ORDER.forEach((k,i)=>{
+    const o=el("div","o"),d=18+i*10.2;o.style.width=o.style.height=d+"%";o.style.animationDuration=per[i]+"s";
+    o.append(planet(k,Math.max(10,P[k].s*.45)));box.append(o);
+  });
+})();
+const VOTE_OPTS=[["Тийм, гарагууд жигд зайтай",false],["Үгүй, Нарнаас холдох тусам зай ихэснэ",true],["Үгүй, Нарнаас холдох тусам зай багасна",false]];
+let votes=store.get("votes",[0,0,0]);
+function renderVotes(){
+  const box=$("#votes");box.innerHTML="";
+  VOTE_OPTS.forEach(([t],i)=>{
+    const r=el("div","vote"),b=el("button",null,t),n=el("b",null,votes[i]),m=el("button","ghost","−");
+    b.onclick=()=>{votes[i]++;store.set("votes",votes);n.textContent=votes[i]};
+    m.onclick=()=>{votes[i]=Math.max(0,votes[i]-1);store.set("votes",votes);n.textContent=votes[i]};
+    r.append(b,n,m);box.append(r);
+  });
+}
+
+/* ---------- 1. Гарагийн эгнээ ---------- */
+let g1={slots:Array(8).fill(null),pool:shuffle(ORDER),sel:null,done:false,t0:Date.now()};
+function tok(k){
+  const t=el("div","tok"+(g1.sel===k?" sel":""));t.draggable=true;t.dataset.k=k;
+  t.append(planet(k,Math.min(P[k].s,46)),el("span",null,P[k].n));
+  t.onclick=ev=>{ev.stopPropagation();if(g1.done)return;g1.sel=g1.sel===k?null:k;renderG1()};
+  t.ondragstart=ev=>{g1.sel=k;ev.dataTransfer.setData("text/plain",k)};
+  return t;
+}
+function take(k){const i=g1.slots.indexOf(k);if(i>=0)g1.slots[i]=null;g1.pool=g1.pool.filter(x=>x!==k)}
+function place(k,i){
+  if(g1.done||!k)return;
+  take(k);if(g1.slots[i])g1.pool.push(g1.slots[i]);
+  g1.slots[i]=k;g1.sel=null;renderG1();
+}
+function toPool(k){if(g1.done||!k)return;take(k);g1.pool.push(k);g1.sel=null;renderG1()}
+function renderG1(){
+  const lane=$("#lane");lane.innerHTML="";
+  const sun=el("div");sun.append(planet("sun",64));sun.style.marginRight="6px";lane.append(sun);
+  g1.slots.forEach((k,i)=>{
+    const s=el("div","slot");s.append(el("span","num",i+1));
+    if(k)s.append(tok(k));
+    if(g1.done)s.classList.add(k===ORDER[i]?"ok":"no");
+    s.onclick=()=>{if(g1.sel)place(g1.sel,i)};
+    s.ondragover=ev=>{ev.preventDefault();s.classList.add("hover")};
+    s.ondragleave=()=>s.classList.remove("hover");
+    s.ondrop=ev=>{ev.preventDefault();place(ev.dataTransfer.getData("text/plain"),i)};
+    lane.append(s);
+  });
+  const pool=$("#pool");pool.innerHTML="";
+  g1.pool.forEach(k=>pool.append(tok(k)));
+  if(!g1.pool.length)pool.append(el("span","mute",g1.done?"":"Бүх гараг байрлалаа. «Шалгах» товч дарна уу."));
+}
+$("#pool").onclick=()=>{if(g1.sel&&g1.slots.includes(g1.sel))toPool(g1.sel)};
+$("#pool").ondragover=ev=>ev.preventDefault();
+$("#pool").ondrop=ev=>{ev.preventDefault();toPool(ev.dataTransfer.getData("text/plain"))};
+$("#g1Check").onclick=()=>{
+  const msg=$("#g1Msg");
+  if(g1.done)return;
+  if(g1.slots.includes(null)){msg.className="msg bad";msg.textContent="Эхлээд 8 гарагийг бүгдийг нь байрлуулна уу.";return}
+  g1.done=true;
+  const ok=g1.slots.filter((k,i)=>k===ORDER[i]).length,sec=Math.round((Date.now()-g1.t0)/1000);
+  const pts=ok+(ok===8?2:0);award(pts);
+  msg.className="msg "+(ok===8?"ok":"bad");
+  msg.textContent=(ok===8?"🎉 Төгс! Бүгд зөв":"✔ "+ok+"/8 зөв")+" · "+sec+" сек · "+teams[active].n+" +"+pts+" оноо";
+  renderG1();
+};
+$("#g1Next").onclick=()=>{g1={slots:Array(8).fill(null),pool:shuffle(ORDER),sel:null,done:false,t0:Date.now()};$("#g1Msg").textContent="";nextTeam();renderG1()};
+$("#g1Mn").onclick=()=>$("#g1Mnem").classList.toggle("on");
+setInterval(()=>{if(stage===1&&!g1.done)$("#g1Clock").textContent="⏱ "+Math.round((Date.now()-g1.t0)/1000)+" сек"},500);
+
+/* ---------- 2. Масштабт аялал ---------- */
+const G2=["mercury","venus","mars","jupiter","saturn","uranus","neptune","pluto"];
+let g2={cur:null,guess:{},rev:{},all:false,max:400};
+function renderG2Chips(){
+  const box=$("#g2Chips");box.innerHTML="";
+  G2.forEach(k=>{
+    const b=el("button","chip"+(g2.cur===k?" cur":"")+(g2.rev[k]?" done":""));
+    b.append(planet(k,Math.min(P[k].s,26)),document.createTextNode(P[k].short||P[k].n));
+    b.onclick=()=>{g2.cur=k;$("#g2Msg").className="msg";$("#g2Msg").textContent=g2.rev[k]?"Энэ гаргийн хариу гарсан.":"«"+P[k].n+"» хаана байх вэ? Шугам дээр дарна уу.";renderG2()};
+    box.append(b);
+  });
+}
+function xPct(cm){return cm/g2.max*100}
+function marker(cm,label,level,cls,k,color){
+  const m=el("div","mk "+(cls||""));m.style.left=xPct(cm)+"%";
+  if(color)m.style.setProperty("--gc",color);
+  m.append(el("div","ln"));
+  if(k)m.append(planet(k,Math.max(12,Math.min(P[k].s*.6,30))));
+  const lb=el("div","lb",label);lb.style.top=(4+level*22)+"px";if(cls==="guess")lb.style.top=(180)+"px";
+  if(cm>g2.max*.9)lb.style.transform="translateX(-100%)";
+  m.append(lb);return m;
+}
+function renderG2(){
+  renderG2Chips();
+  const tr=$("#track");tr.innerHTML="";
+  tr.append(el("div","sunEdge"),el("div","axis"));
+  const step=g2.max===400?50:2;
+  for(let v=step;v<=g2.max;v+=step){const t=el("div","tick");t.style.left=xPct(v)+"%";t.append(el("span",null,v+" см"));tr.append(t)}
+  tr.append(marker(10,"Дэлхий 10 см",0,"",  "earth"));
+  let lvl=1;
+  G2.forEach(k=>{
+    if(g2.rev[k]||g2.all){if(P[k].d<=g2.max)tr.append(marker(P[k].d,(P[k].short||P[k].n)+" "+P[k].d+" см",lvl%4,"",k));lvl++}
+  });
+  if(g2.all&&g2.max===400){const b=marker(28,"Бага гарагийн бүс 28",3,"","asteroid");tr.append(b)}
+  Object.keys(g2.guess).forEach(k=>{
+    const g=g2.guess[k];
+    if(g.cm<=g2.max&&(!g2.rev[k]||k===g2.cur))tr.append(marker(g.cm,"? "+(P[k].short||P[k].n),0,"guess",null,teams[g.team].c));
+  });
+}
+$("#track").onclick=ev=>{
+  const msg=$("#g2Msg");
+  if(!g2.cur){msg.className="msg bad";msg.textContent="Эхлээд дээрээс гараг сонгоно уу.";return}
+  if(g2.rev[g2.cur])return;
+  const r=$("#track").getBoundingClientRect(),cm=Math.max(0,Math.min(g2.max,(ev.clientX-r.left)/r.width*g2.max));
+  g2.guess[g2.cur]={cm:Math.round(cm*10)/10,team:active};
+  msg.className="msg";msg.textContent=teams[active].n+": «"+P[g2.cur].n+"» ≈ "+g2.guess[g2.cur].cm+" см гэж таалаа. «Хариуг харуулах» дарна уу.";
+  renderG2();
+};
+$("#g2Rev").onclick=()=>{
+  const k=g2.cur,msg=$("#g2Msg");
+  if(!k||!g2.guess[k]){msg.className="msg bad";msg.textContent="Гараг сонгоод шугам дээр таамгаа тэмдэглэнэ үү.";return}
+  if(g2.rev[k])return;
+  g2.rev[k]=true;
+  const g=g2.guess[k],t=P[k].d,e=Math.abs(g.cm-t);
+  const pts=e<=Math.max(t*.15,4)?3:e<=Math.max(t*.3,8)?2:e<=Math.max(t*.5,15)?1:0;
+  if(t>g2.max){g2.max=400;$("#g2Zoom").textContent="🔍 0–20 см-ийг томруулах"}
+  award(pts,g.team);
+  msg.className="msg "+(pts?"ok":"bad");
+  msg.textContent=P[k].n+": таамаг "+g.cm+" см, бодит "+t+" см ("+(t*15>=1000?(t*15/1000).toFixed(1).replace(".0","")+" тэрбум км":(t*15)+" сая км")+") → "+teams[g.team].n+" +"+pts+" оноо. Дараагийн ээлж!";
+  if(g.team===active)nextTeam();
+  renderG2();
+  if(G2.every(x=>g2.rev[x]))showConcl();
+};
+$("#g2Zoom").onclick=()=>{g2.max=g2.max===400?20:400;$("#g2Zoom").textContent=g2.max===20?"🔭 Бүтэн шугам (0–400 см)":"🔍 0–20 см-ийг томруулах";renderG2()};
+$("#g2All").onclick=()=>{g2.all=true;g2.max=400;$("#g2Zoom").textContent="🔍 0–20 см-ийг томруулах";renderG2();showConcl()};
+$("#g2Reset").onclick=()=>{g2={cur:null,guess:{},rev:{},all:false,max:400};$("#g2Msg").textContent="";$("#g2Concl").classList.remove("on");renderG2()};
+function showConcl(){
+  const rows=[["Нар",0],["Буд",4],["Сугар",7],["Дэлхий",10],["Ангараг",15],["Бага гарагуудын бүс",28],["Бархасбадь",52],["Санчир",96],["Тэнгэрийн ван",192],["Далай ван",300],["Дэлхий ван (одой гараг)",395]];
+  $("#g2Table").innerHTML="<tr><th>2.1 дүгээр хүснэгт</th><th>Загварт</th><th>Ойролцоо бодит зай</th></tr>"+
+    rows.map(([n,d])=>"<tr><td>"+n+"</td><td>"+d+" см</td><td>"+(d===0?"—":(d*15>=1000?(d*15/1000).toFixed(1).replace(".0","")+" тэрбум км":d*15+" сая км"))+"</td></tr>").join("");
+  $("#g2Concl").classList.add("on");
+}
+
+/* ---------- 3. Би хэн бэ? ---------- */
+/* Сэжүүр бүр сурах бичгийн 2.1 сэдэв ба 2.1 дүгээр хүснэгтээс */
+const RID=[
+  {k:"sun",c:["Миний найрлагад устөрөгч, гели зонхилдог.","Миний гадаргын температур 6000°C.","Би Дэлхийд хамгийн ойр орших шар од."],f:"Нар бол Нарны аймгийн төв — бүх гараг түүнийг тойрон эргэдэг.",src:"СБ 16"},
+  {k:"mars",c:["Загварт би Нарнаас 15 см зайд байна.","Миний өнгө улаан.","Нарнаас 4 дэх гараг, миний ард бага гарагуудын бүс эхэлнэ."],f:"Ангараг — улаан гараг. Дэлхийтэй хөрш.",src:"2.1 хүснэгт"},
+  {k:"moon",c:["Би Дэлхийгээс 384 400 км зайд оршдог.","Та нар миний зөвхөн нэг талыг л хардаг.","Би Дэлхий гарагийн ганц дагуул."],f:"Сарны Дэлхийг тойрох хурд ба тэнхлэгээ эргэх хугацаа бараг ижил тул бид нэг талыг нь л хардаг.",src:"СБ 16"},
+  {k:"venus",c:["Миний өнгө цагаан шаргал.","Загварт би Нарнаас 7 см зайтай.","Би Буд, Дэлхий хоёрын дунд оршдог — Нарнаас 2 дахь гараг."],f:"Монголчууд Сугарыг «Цолмон» гэж нэрлэдэг.",src:"2.1 хүснэгт"},
+  {k:"jupiter",c:["Загварт би Нарнаас 52 см зайд байна.","Миний өнгө шаргал.","Сурах бичигт намайг хамгийн олон буюу 79 дагуултай гэж бичсэн."],f:"Шинэ нээлтээр Бархасбадь 95 гаруй дагуултай болсон. Харин Санчир 270 гаруй дагуулаар тэргүүлж байна!",src:"СБ 16"},
+  {k:"asteroid",c:["Миний өнгө хар.","Загварт би Нарнаас 28 см зайд байна.","Ангараг, Бархасбадь хоёрын хооронд олон жижиг гараг бөөгнөрсөн газар."],f:"Нарны аймагт гарагаас гадна жижиг гарагууд олон бий.",src:"2.1 хүснэгт"},
+  {k:"earth",c:["Миний өнгө цэнхэр.","Загварт би Нарнаас яг 10 см зайд байна.","Нарнаас 3 дахь гараг — Сар бол миний дагуул."],f:"Дасгал 1(в): Нарнаас 3 дахь гараг бусдаасаа юугаараа ялгардаг вэ? Ярилцаарай!",src:"2.1 хүснэгт"},
+  {k:"mercury",c:["Миний өнгө саарал.","Загварт би Нарнаас ердөө 4 см зайтай.","Би Нарт хамгийн ойр орших гараг."],f:"Буд бол Нарнаас 1 дэх гараг.",src:"2.1 хүснэгт"},
+  {k:"saturn",c:["Миний өнгө алтлаг шар.","Загварт би Нарнаас 96 см буюу бараг 1 метр зайд!","Бархасбадийн дараа орших, Нарнаас 6 дахь гараг."],f:"Санчир гоё цагиргуудаараа алдартай.",src:"2.1 хүснэгт"},
+  {k:"comet",c:["Би Нарны аймгийн бүрэлдэхүүнд ордог ч гараг биш.","Нэрэнд минь «од» гэж байдаг ч би од биш.","Дасгал 1(б) «… гэж юу вэ?» гэж намайг асуудаг."],f:"Энэ бол гэрийн даалгаврын асуулт! Сүүлт од юунаас тогтдог, яагаад сүүлтэй байдгийг судалж ирээрэй.",src:"СБ 16"},
+  {k:"uranus",c:["Миний өнгө хар хөх.","Загварт би Нарнаас 192 см зайд байна.","Санчирын дараа орших, Нарнаас 7 дахь гараг."],f:"Санчираас Тэнгэрийн ван хүртэлх зай Нараас Санчир хүртэлх зайтай бараг тэнцүү!",src:"2.1 хүснэгт"},
+  {k:"neptune",c:["Загварт би Нарнаас 300 см буюу 3 метр зайд байна.","Би Тэнгэрийн вангийн дараа ордог.","Одоогийн 8 гарагийн хамгийн алслагдсан нь би."],f:"Сурах бичигт 9 дэх нь Дэлхий ван (395 см). 2006 оноос түүнийг одой гараг гэж ангилсан.",src:"2.1 хүснэгт"}
+];
+const G3OPTS=["sun","moon","mercury","venus","earth","mars","jupiter","saturn","uranus","neptune","comet","asteroid"];
+let g3={i:0,shown:1,solved:false,wrong:[]};
+function renderG3(){
+  const r=RID[g3.i];
+  $("#g3Count").textContent="Карт "+(g3.i+1)+" / "+RID.length;
+  $("#g3Worth").textContent=g3.solved?"":"Одоо таавал: "+(4-g3.shown)+" оноо";
+  const box=$("#g3Clues");box.innerHTML="";
+  r.c.forEach((t,j)=>{const d=el("div","clue"+(j<g3.shown?"":" hid"),"<small>СЭЖҮҮР "+(j+1)+"</small>"+t);box.append(d)});
+  const ans=$("#g3Ans");ans.innerHTML="";
+  G3OPTS.forEach(k=>{
+    const b=el("button",g3.wrong.includes(k)?"no":(g3.solved&&k===r.k?"yes":""));
+    b.append(planet(k,22),document.createTextNode(P[k].short||P[k].n));
+    b.onclick=()=>pickG3(k);ans.append(b);
+  });
+  const rv=$("#g3Rev");rv.classList.toggle("on",g3.solved);
+  if(g3.solved){rv.innerHTML="";rv.append(planet(r.k,Math.max(40,P[r.k].s)));rv.append(el("div",null,"<b>"+P[r.k].n+"</b><br>💡 "+r.f))}
+  $("#g3More").disabled=g3.solved||g3.shown>=3;
+}
+function pickG3(k){
+  if(g3.solved||g3.wrong.includes(k))return;
+  const r=RID[g3.i],msg=$("#g3Msg");
+  if(k===r.k){
+    const pts=4-g3.shown;award(pts);g3.solved=true;
+    msg.className="msg ok";msg.textContent="🎉 Зөв! "+teams[active].n+" +"+pts+" оноо";
+  }else{
+    g3.wrong.push(k);const was=teams[active].n;nextTeam();
+    msg.className="msg bad";msg.textContent="✘ "+was+" буруу. Ээлж: "+teams[active].n;
+  }
+  renderG3();
+}
+$("#g3More").onclick=()=>{if(g3.shown<3){g3.shown++;renderG3()}};
+$("#g3Show").onclick=()=>{g3.shown=3;g3.solved=true;$("#g3Msg").className="msg";$("#g3Msg").textContent="Хариуг харууллаа (оноогүй).";renderG3()};
+$("#g3Next").onclick=()=>{g3={i:(g3.i+1)%RID.length,shown:1,solved:false,wrong:[]};$("#g3Msg").textContent="";nextTeam();renderG3()};
+
+/* ---------- Бүтээх: өөрийн цээжлэх арга ---------- */
+const MK=["Б","С","Д","А","Б","С","Т","Д"],mkDone=new Set();
+const mkWords=s=>s.replace(/[^\p{L}\s-]/gu," ").split(/\s+/).filter(Boolean);
+function renderMk(){
+  const w=mkWords($("#mkIn").value),box=$("#mkLt");box.innerHTML="";
+  MK.forEach((L,j)=>{const g=w[j]?w[j][0].toUpperCase():"";const b=el("div","lt"+(g?(g===L?" ok":" no"):""),g||L);b.style.opacity=g?1:.35;box.append(b)});
+}
+$("#mkIn").oninput=()=>{renderMk();$("#mkMsg").textContent=""};
+$("#mkOk").onclick=()=>{
+  const v=$("#mkIn").value.trim(),w=mkWords(v),m=$("#mkMsg");
+  const ok=(w.length===8||w.length===9)&&w.every((x,j)=>x[0].toUpperCase()===(j<8?MK[j]:"Д"));
+  if(!ok){m.className="msg bad";m.textContent="✘ Үсэг таарахгүй байна — улаан нүдийг засаарай.";return}
+  if(mkDone.has(v)){m.className="msg";m.textContent="Энэ өгүүлбэр аль хэдийн оноо авсан.";return}
+  mkDone.add(v);award(2);m.className="msg ok";m.textContent="🎉 "+teams[active].n+" +2! Дараагийн баг өөрийнхөөгөө зохио.";
+  setTimeout(()=>{$("#mkIn").value="";renderMk();nextTeam()},1800);
+};
+renderMk();
+
+/* ---------- Бүтээх: өөрсдөө оньсого зохиох ---------- */
+let mkR={author:0,shown:1,done:false};
+function renderMkR(){
+  $("#mkAuthor").textContent=teams[mkR.author].n;$("#mkAuthor").style.color=teams[mkR.author].c;
+  $("#mkWorth").textContent=mkR.done?"":"Уншсан сэжүүр: "+mkR.shown+" / 3 → таавал "+(4-mkR.shown)+" оноо";
+  $("#mkClue").disabled=mkR.done||mkR.shown>=3;
+  const g=$("#mkGuess");g.innerHTML="";
+  teams.forEach((t,i)=>{
+    if(i===mkR.author)return;
+    const b=el("button",null,"✔ "+t.n+" зөв таалаа");b.style.setProperty("--tc",t.c);b.disabled=mkR.done;
+    b.onclick=()=>{
+      const p=4-mkR.shown,ap=mkR.shown>=2?2:1;award(p,i);award(ap,mkR.author);mkR.done=true;
+      const m=$("#mkRMsg");m.className="msg ok";m.textContent="🎉 "+t.n+" +"+p+" · Зохиогч "+teams[mkR.author].n+" +"+ap+(ap===2?" (сайн оньсого!)":"");
+      renderMkR();
+    };
+    g.append(b);
+  });
+  const nx=el("button","main","Дараагийн зохиогч ➜");
+  nx.onclick=()=>{mkR={author:(mkR.author+1)%teams.length,shown:1,done:false};$("#mkRMsg").textContent="";renderMkR()};
+  g.append(nx);
+}
+$("#mkClue").onclick=()=>{if(mkR.shown<3){mkR.shown++;renderMkR()}};
+renderMkR();
+
+/* ---------- 3. Санах ойн хос ---------- */
+const PAIRS=[
+  ["6000°C","Нарны гадаргын температур"],
+  ["384 400 км","Дэлхийгээс Сар хүртэлх зай"],
+  ["Устөрөгч, гели","Нарны найрлагад зонхилох хий"],
+  ["79","СБ-т бичсэн Бархасбадийн дагуулын тоо"],
+  ["Шар од","Нар юу вэ?"],
+  ["Улаан","Ангарагийн өнгө"],
+  ["28 см","Загварт бага гарагуудын бүс"],
+  ["Ганц","Дэлхийн дагуулын тоо"]
+];
+let mem;
+function newMem(){
+  const cards=[];PAIRS.forEach((p,i)=>{cards.push({id:i,t:p[0],s:"a"},{id:i,t:p[1],s:"b"})});
+  mem={cards:shuffle(cards),up:[],done:new Set(),lock:false};renderMem();$("#memMsg").textContent="";
+}
+function renderMem(){
+  const box=$("#mem");box.innerHTML="";
+  mem.cards.forEach((c,i)=>{
+    const d=el("div","mc"+(mem.done.has(c.id)?" done":mem.up.includes(i)?" up":""));
+    d.innerHTML="<div class='back'>☀️</div><div class='face "+c.s+"'></div>";
+    d.querySelector(".face").textContent=c.t;
+    d.onclick=()=>flipMem(i);box.append(d);
+  });
+  $("#memInfo").textContent="Олсон хос: "+mem.done.size+" / "+PAIRS.length;
+}
+function flipMem(i){
+  const c=mem.cards[i];
+  if(mem.lock||mem.done.has(c.id)||mem.up.includes(i))return;
+  mem.up.push(i);renderMem();
+  if(mem.up.length<2)return;
+  const [a,b]=mem.up.map(j=>mem.cards[j]),msg=$("#memMsg");
+  if(a.id===b.id&&a.s!==b.s){
+    mem.done.add(a.id);mem.up=[];award(1);
+    msg.className="msg ok";msg.textContent="🎉 Хос олдлоо: «"+PAIRS[a.id][0]+"» — "+PAIRS[a.id][1]+". "+teams[active].n+" дахин тоглоно!";
+    if(mem.done.size===PAIRS.length)msg.textContent+=" Бүх хос олдлоо! 🏁";
+    renderMem();
+  }else{
+    mem.lock=true;const was=teams[active].n;
+    msg.className="msg bad";msg.textContent="✘ Таарсангүй. "+was+" → ээлж шилжлээ.";
+    setTimeout(()=>{mem.up=[];mem.lock=false;nextTeam();msg.textContent+=" Одоо: "+teams[active].n;renderMem()},1400);
+  }
+}
+$("#memNew").onclick=newMem;
+
+/* ---------- 5. Үнэн үү, худал уу? (СБ 16-р талаас) ---------- */
+const QZ=[
+  {q:"Нар бол гараг.",t:false,e:"Нар бол Дэлхийд хамгийн ойр орших <b>шар од</b>."},
+  {q:"Нарны гадаргын температур 6000°C.",t:true,e:"Тийм, сурах бичигт ингэж бичсэн."},
+  {q:"Нарны найрлагад хүчилтөрөгч, азот зонхилдог.",t:false,e:"Нарны найрлагад <b>устөрөгч, гели</b> зонхилдог."},
+  {q:"Сар бол Дэлхийн ганц дагуул.",t:true,e:"Сар Дэлхийгээс 384 400 км зайд оршдог."},
+  {q:"Бид Сарны бүх талыг ээлжлэн хардаг.",t:false,e:"Бид Сарны зөвхөн <b>нэг талыг</b> хардаг — тойрох хурд ба тэнхлэгээ эргэх хугацаа нь бараг ижил."},
+  {q:"Сүүлт од, солир, тоосонцор ч Нарны аймагт багтдаг.",t:true,e:"Нар, гарагууд, дагуулууд, жижиг гарагууд, сүүлт одод, солирууд, тоосонцор, гараг хоорондын зай — бүгд Нарны аймаг."},
+  {q:"Бага гарагуудын бүс Дэлхий ба Ангарагийн хооронд оршдог.",t:false,e:"Бага гарагуудын бүс <b>Ангараг ба Бархасбадийн</b> хооронд (загварт 28 см)."},
+  {q:"Нарнаас алслагдах дарааллаар 3-т Дэлхий оршдог.",t:true,e:"Буд → Сугар → <b>Дэлхий</b>."},
+  {q:"Ангараг гараг цэнхэр өнгөтэй.",t:false,e:"Ангараг — <b>улаан</b>. Цэнхэр нь Дэлхий."},
+  {q:"Загварт Дэлхий Нарнаас 10 см бол Санчир бараг 1 метр зайд байна.",t:true,e:"Санчир 96 см — гарагууд Нарнаас холдох тусам зай огцом ихэсдэг."},
+  {q:"Сурах бичигт Бархасбадийг хамгийн олон дагуултай гэж бичсэн.",t:true,e:"СБ-т 79 дагуултай гэжээ. 🆕 Шинэ нээлтээр одоо <b>Санчир</b> 270 гаруй дагуулаар тэргүүлж байна."},
+  {q:"Нарны аймгийн бүх гараг Нараас ижил зайд оршдог.",t:false,e:"Гарагууд Нарнаас <b>жигд бус</b> зайд — Буд 4 см, Далай ван 300 см."}
+];
+let g4={i:0,rev:false,got:{}};
+function renderG4(){
+  const q=QZ[g4.i];
+  $("#g4Count").textContent="Өгүүлбэр "+(g4.i+1)+" / "+QZ.length;
+  const box=$("#g4Q");box.textContent="«"+q.q+"»";box.className="tf"+(g4.rev?(q.t?" t":" f"):"");
+  const a=$("#g4Ans");a.classList.toggle("on",g4.rev);
+  a.innerHTML="<div class='big' style='color:"+(q.t?"var(--ok)":"var(--bad)")+"'>"+(q.t?"✅ ҮНЭН":"❌ ХУДАЛ")+"</div><div>"+q.e+"</div><div class='src'>📖 СБ 16-р тал</div>";
+  $("#g4Give").classList.toggle("on",g4.rev);
+  renderG4Give();
+}
+function renderG4Give(){
+  const g=$("#g4Give");g.querySelectorAll("button").forEach(b=>b.remove());
+  const key=g4.i,got=g4.got[key]||(g4.got[key]=[]);
+  teams.forEach((t,i)=>{
+    const b=el("button",got.includes(i)?"got":"");b.style.setProperty("--tc",t.c);b.textContent=(got.includes(i)?"✔ ":"+1 ")+t.n;
+    b.onclick=()=>{
+      if(got.includes(i)){got.splice(got.indexOf(i),1);award(-1,i)}else{got.push(i);award(1,i)}
+      renderG4Give();
+    };
+    g.append(b);
+  });
+}
+$("#g4Rev").onclick=()=>{g4.rev=true;renderG4()};
+$("#g4Next").onclick=()=>{if(g4.i<QZ.length-1){g4.i++;g4.rev=false;renderG4()}};
+$("#g4Prev").onclick=()=>{if(g4.i>0){g4.i--;g4.rev=false;renderG4()}};
+
+/* ---------- 5. Дүгнэлт ---------- */
+function renderEnd(){
+  const ranked=teams.map((t,i)=>({...t,i})).sort((a,b)=>b.s-a.s);
+  const pos=[1,0,2,3].filter(x=>x<ranked.length),h=[150,210,110,80],md=["🥈","🥇","🥉","🚀"];
+  const box=$("#podium");box.innerHTML="";
+  pos.forEach((r,j)=>{
+    const t=ranked[r],d=el("div","pod");d.style.setProperty("--tc",t.c);d.style.height=h[j]+"px";
+    d.innerHTML="<span class='medal'>"+md[j]+"</span><span></span><span style='font-size:1.6em'>"+t.s+"</span>";
+    d.children[1].textContent=t.n;box.append(d);
+  });
+  const total=votes.reduce((a,b)=>a+b,0);
+  $("#predRes").innerHTML=VOTE_OPTS.map(([t,ok],i)=>"<div class='vote'><span style='flex:1'>"+(ok?"✅ <b>":"▫️ ")+t+(ok?"</b>":"")+"</span><b>"+votes[i]+"</b></div>").join("")+
+    "<p class='mute'>"+(total?"Зөв таамагласан: "+votes[1]+" / "+total+". ":"")+"Масштабт аялал харуулсан: Нарнаас холдох тусам гарагуудын хоорондын зай ихэсдэг.</p>";
+}
+document.querySelectorAll(".blank").forEach(b=>b.onclick=()=>b.classList.toggle("on"));
+
+/* ---------- Багшид ---------- */
+$("#guideBtn").onclick=()=>$("#guide").showModal();
+$("#guideClose").onclick=()=>$("#guide").close();
+$("#resetAll").onclick=()=>{
+  if(!confirm("Бүх багийн оноо болон таамаглалын саналыг тэглэх үү?"))return;
+  teams.forEach(t=>t.s=0);votes=[0,0,0];active=0;saveTeams();store.set("votes",votes);
+  renderTeams();renderVotes();renderEnd();$("#guide").close();
+};
+
+renderTeams();renderVotes();renderG1();renderG2();newMem();renderG3();renderG4();go(0);
+})();
+</script>
+</body>
+</html>
