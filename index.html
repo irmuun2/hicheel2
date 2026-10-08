@@ -310,6 +310,11 @@ dialog h3{color:var(--acc);margin-top:18px}
     <button id="tPlay" title="Эхлүүлэх/зогсоох">▶</button>
     <button id="tReset" title="Дахин эхлүүлэх">↺</button>
   </div>
+  <div class="timer">
+    <button id="zOut" title="Жижигрүүлэх">A−</button>
+    <button id="zIn" title="Томруулах">A+</button>
+    <button id="fsBtn" title="Бүтэн дэлгэц (F)">⛶ Бүтэн дэлгэц</button>
+  </div>
   <button id="guideBtn">📋 Багшид</button>
 </header>
 
@@ -1195,6 +1200,25 @@ document.querySelectorAll(".blank").forEach(b=>b.onclick=()=>b.classList.toggle(
 
 /* ---------- Багшид ---------- */
 $("#guideBtn").onclick=()=>$("#guide").showModal();
+
+/* ---------- Бүтэн дэлгэц, томруулах ---------- */
+function toggleFS(){
+  const d=document;
+  if(!d.fullscreenElement){(d.documentElement.requestFullscreen||d.documentElement.webkitRequestFullscreen).call(d.documentElement).catch?.(()=>{})}
+  else (d.exitFullscreen||d.webkitExitFullscreen).call(d);
+}
+document.addEventListener("fullscreenchange",()=>{$("#fsBtn").textContent=document.fullscreenElement?"✕ Бүтэн дэлгэцээс гарах":"⛶ Бүтэн дэлгэц"});
+$("#fsBtn").onclick=toggleFS;
+let zoom=store.get("zoom",1);
+function applyZoom(){document.body.style.zoom=zoom;store.set("zoom",zoom)}
+$("#zIn").onclick=()=>{zoom=Math.min(1.8,Math.round((zoom+.1)*10)/10);applyZoom()};
+$("#zOut").onclick=()=>{zoom=Math.max(.6,Math.round((zoom-.1)*10)/10);applyZoom()};
+applyZoom();
+document.addEventListener("keydown",ev=>{
+  const t=ev.target;
+  if(t.isContentEditable||/^(INPUT|TEXTAREA|SELECT)$/.test(t.tagName)||$("#guide").open)return;
+  if(ev.key==="f"||ev.key==="F"||ev.key==="ф"||ev.key==="Ф"){ev.preventDefault();toggleFS()}
+});
 $("#guideClose").onclick=()=>$("#guide").close();
 $("#resetAll").onclick=()=>{
   if(!confirm("Бүх багийн оноо болон таамаглалын саналыг тэглэх үү?"))return;
