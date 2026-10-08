@@ -415,7 +415,7 @@ dialog h3{color:var(--acc);margin-top:18px}
       <h2>🎮 Одоо тоглоомоор бататгая!</h2>
       <p style="margin-top:-6px">Сая сурсан зүйлээ дараах 5 тоглоомд ашиглана:</p>
       <div class="gl">
-        <div><b>1. 🪐 Гарагийн эгнээ</b><span>Гарагуудыг дараалуулж, өөрийн цээжлэх арга зохионо</span></div>
+        <div><b>1. 🪐 Гарагийн эгнээ</b><span>Гарагуудыг Нарнаас эхлэн зөв дараалуул</span></div>
         <div><b>2. 📏 Масштабт аялал</b><span>Дэлхий = 10 см бол бусад гараг хаана вэ?</span></div>
         <div><b>3. 🃏 Санах ойн хос</b><span>6000°C, 384 400 км, 79 … тоог утгатай нь тааруул</span></div>
         <div><b>4. 🕵️ Би хэн бэ?</b><span>Сэжүүрээр таа, дараа нь өөрсдөө оньсого зохио</span></div>
@@ -455,13 +455,6 @@ dialog h3{color:var(--acc);margin-top:18px}
       <b>Б</b>ор <b>С</b>үм <b>Д</b>ээр <b>А</b>ав <b>Б</b>ид <b>С</b>айхан <b>Т</b>энгэрт <b>Д</b>уулав
       <div class="mute">Буд · Сугар · Дэлхий · Ангараг · Бархасбадь · Санчир · Тэнгэрийн ван · Далай ван</div>
       <div class="mute" style="margin-top:6px">Сурах бичигт 9 гараг гэж бичсэн: 9 дэх нь <b style="font-size:1em">Дэлхий ван (Плутон)</b>. 2006 оноос эрдэмтэд түүнийг <b style="font-size:1em">одой гараг</b> гэж ангилсан.</div>
-    </div>
-    <div class="make">
-      <h3>✍️ Өөрийн цээжлэх арга зохио!</h3>
-      <p class="mute" style="margin:0 0 8px">Үг бүрийн эхний үсэг нь гарагийн нэрийн эхний үсэгтэй таарах өгүүлбэр зохио. Ээлжийн баг бичнэ — зөв бол <b>+2</b>.</p>
-      <input id="mkIn" placeholder="Жишээ нь: Бат Сайхан Дуу …">
-      <div class="letters" id="mkLt"></div>
-      <div class="btns"><button class="main" id="mkOk">✔ Шалгах</button><span class="msg" id="mkMsg" style="margin:0"></span></div>
     </div>
   </div>
 </section>
@@ -1069,24 +1062,6 @@ $("#g3Show").onclick=()=>{
   renderG3();
 };
 $("#g3Next").onclick=()=>{g3={i:(g3.i+1)%RID.length,shown:1,rev:false,locks:{},pick:null};$("#g3Msg").textContent="";renderG3()};
-
-/* ---------- Бүтээх: өөрийн цээжлэх арга ---------- */
-const MK=["Б","С","Д","А","Б","С","Т","Д"],mkDone=new Set();
-const mkWords=s=>s.replace(/[^\p{L}\s-]/gu," ").split(/\s+/).filter(Boolean);
-function renderMk(){
-  const w=mkWords($("#mkIn").value),box=$("#mkLt");box.innerHTML="";
-  MK.forEach((L,j)=>{const g=w[j]?w[j][0].toUpperCase():"";const b=el("div","lt"+(g?(g===L?" ok":" no"):""),g||L);b.style.opacity=g?1:.35;box.append(b)});
-}
-$("#mkIn").oninput=()=>{renderMk();$("#mkMsg").textContent=""};
-$("#mkOk").onclick=()=>{
-  const v=$("#mkIn").value.trim(),w=mkWords(v),m=$("#mkMsg");
-  const ok=(w.length===8||w.length===9)&&w.every((x,j)=>x[0].toUpperCase()===(j<8?MK[j]:"Д"));
-  if(!ok){m.className="msg bad";m.textContent="✘ Үсэг таарахгүй байна — улаан нүдийг засаарай.";return}
-  if(mkDone.has(v)){m.className="msg";m.textContent="Энэ өгүүлбэр аль хэдийн оноо авсан.";return}
-  mkDone.add(v);award(2);m.className="msg ok";m.textContent="🎉 "+teams[active].n+" +2! Дараагийн баг өөрийнхөөгөө зохио.";
-  setTimeout(()=>{$("#mkIn").value="";renderMk();nextTeam()},1800);
-};
-renderMk();
 
 /* ---------- Бүтээх: өөрсдөө оньсого зохиох ---------- */
 let mkR={author:0,shown:1,done:false};
